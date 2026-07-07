@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: pharmacy_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pharmacy_shortage}
+      POSTGRES_USER: ${POSTGRES_USER:-pharmacy_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pharmacy_secure_2024}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pharmacy_admin}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pharmacy_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-pharmacy_admin}:${POSTGRES_PASSWORD:-pharmacy_secure_2024}@db:5432/${POSTGRES_DB:-pharmacy_shortage}
+      - SECRET_KEY=${SECRET_KEY:-super-secret-key-change-in-production}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - UPLOAD_MAX_SIZE_MB=${UPLOAD_MAX_SIZE_MB:-10}
+      - DEFAULT_MIN_STOCK=${DEFAULT_MIN_STOCK:-10}
+    volumes:
+      - ./backend:/app
+      - upload_data:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pharmacy_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  upload_data:
