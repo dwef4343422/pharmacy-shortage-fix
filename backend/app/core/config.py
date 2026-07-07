@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     ALLOWED_EXTENSIONS: str = ".png,.jpg,.jpeg,.bmp,.tiff,.xlsx,.xls,.csv,.pdf"
 
     # OCR
-    OCR_ENGINE: str = "paddleocr"  # paddleocr | tesseract
+    OCR_ENGINE: str = "tesseract"  # paddleocr | tesseract
     OCR_LANGUAGE: str = "en,ar"
     OCR_CONFIDENCE_THRESHOLD: float = 0.6
     TESSERACT_PATH: Optional[str] = None
@@ -42,7 +42,22 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> list[str]:
-        return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+        """Get CORS origins list with production-friendly defaults."""
+        origins = [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+
+        # In debug mode, allow all localhost variations
+        if self.DEBUG:
+            dev_origins = [
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "http://localhost:8000",
+                "http://127.0.0.1:8000",
+            ]
+            for origin in dev_origins:
+                if origin not in origins:
+                    origins.append(origin)
+
+        return origins
 
     @property
     def allowed_extensions_list(self) -> list[str]:
@@ -51,6 +66,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "allow"
 
 
 settings = Settings()

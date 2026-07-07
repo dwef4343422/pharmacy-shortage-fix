@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { api } from "@/lib/api";
+import { api, uploadApi } from "@/lib/api";
 import { useReportStore } from "@/stores/reportStore";
 import { useSettingsStore } from "@/stores/settingsStore";
 import DropZone from "@/components/upload/DropZone";
@@ -49,7 +49,7 @@ export default function UploadPage() {
 
       setStatus("Running AI analysis...");
       
-      const response = await api.post(`/upload?min_stock=${settings.default_min_stock}`, formData);
+      const response = await uploadApi.post(`/upload?min_stock=${settings.default_min_stock}`, formData);
 
       clearInterval(progressInterval);
       setProgress(100);

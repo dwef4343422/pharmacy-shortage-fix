@@ -18,3 +18,11 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Helper for file uploads - clears Content-Type to let browser set it with boundary
+export const uploadApi = axios.create({
+  baseURL: API_URL,
+  headers: {
+    // No Content-Type - will be set automatically by browser for FormData
+  },
+});
