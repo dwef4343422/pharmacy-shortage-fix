@@ -30,7 +30,8 @@
       "Bash(curl -s http://localhost:8001/health)",
       "Bash(kill %1)",
       "Bash(curl -s http://localhost:8000/health)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(git stash *)"
     ]
   }
 }
