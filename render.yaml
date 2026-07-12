@@ -17,9 +17,9 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
-        # Update this in Render Dashboard after the Vercel frontend is live.
-        # Format: https://your-app.vercel.app,https://your-preview.vercel.app
-        value: "http://localhost:3000,http://127.0.0.1:3000"
+        # Frontend is live on Vercel; allow it plus local dev origins.
+        # Update here if the Vercel URL changes, or override in the Render Dashboard.
+        value: "https://pharmacy-shortage-fix-ksyv.vercel.app,http://localhost:3000,http://127.0.0.1:3000"
       - key: OCR_ENGINE
         value: tesseract
       - key: OCR_CONFIDENCE_THRESHOLD
