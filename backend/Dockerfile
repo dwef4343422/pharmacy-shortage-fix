@@ -18,4 +18,5 @@ COPY . .
 EXPOSE 8000
 
 # Production mode (remove --reload for production)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Render injects $PORT at runtime; fall back to 8000 for local docker-compose.
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}

@@ -17,8 +17,10 @@ alembic==1.13.1
 greenlet==3.0.3
 
 # OCR & Image Processing
-paddleocr==2.7.3
-paddlepaddle>=2.6.2,<3.0.0
+# NOTE: PaddleOCR (paddleocr/paddlepaddle) is intentionally omitted. It's a ~400MB
+# dependency with no wheels for newer Python, and the deployed app uses the Tesseract
+# engine (OCR_ENGINE=tesseract). Install it manually (`pip install paddleocr paddlepaddle`)
+# only for higher-accuracy OCR in a local/self-hosted setup.
 pytesseract==0.3.10
 Pillow==10.3.0
 opencv-python-headless==4.10.0.84

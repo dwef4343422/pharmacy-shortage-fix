@@ -1,13 +1,14 @@
 services:
-  # Backend API (Python/FastAPI)
+  # Backend API (Python/FastAPI) — deployed as a Docker service so we get a
+  # pinned Python 3.11 image AND the Tesseract binary (Render's managed Python
+  # runtime does not ship Tesseract). The app uses OCR_ENGINE=tesseract.
   - type: web
     name: pharmacy-backend
-    runtime: python
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     region: oregon
     plan: free
     rootDir: backend
-    buildCommand: pip install --no-cache-dir -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -16,33 +17,19 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
-        # Update this in Render Dashboard after Vercel deployment
+        # Update this in Render Dashboard after the Vercel frontend is live.
         # Format: https://your-app.vercel.app,https://your-preview.vercel.app
         value: "http://localhost:3000,http://127.0.0.1:3000"
       - key: OCR_ENGINE
         value: tesseract
       - key: OCR_CONFIDENCE_THRESHOLD
         value: "0.6"
-      - key: UPLOAD_MAX_SIZE_MB
-        value: "10"
       - key: TESSERACT_PATH
         value: /usr/bin/tesseract
-      - key: PYTHON_VERSION
-        value: "3.11"
+      - key: UPLOAD_MAX_SIZE_MB
+        value: "10"
 
-  # Frontend (Next.js) - Optional: deploy to Vercel instead
-  - type: web
-    name: pharmacy-frontend
-    runtime: node
-    region: oregon
-    plan: free
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    envVars:
-      - key: NEXT_PUBLIC_API_URL
-        value: https://pharmacy-backend.onrender.com/api/v1
-
+# Frontend (Next.js) is deployed separately on Vercel — see frontend/vercel.json.
 # PostgreSQL Database: Create MANUALLY in Render Dashboard
 # 1. Go to Render Dashboard → New → PostgreSQL
 # 2. Name: pharmacy-db
