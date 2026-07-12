@@ -2,8 +2,10 @@
 Pharmacy Smart Shortage Manager — Application Configuration
 """
 
-from pydantic_settings import BaseSettings
 from typing import Optional
+
+from pydantic import field_validator
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -17,6 +19,23 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://pharmacy_admin:pharmacy_secure_2024@localhost:5432/pharmacy_shortage"
     DATABASE_ECHO: bool = False
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def _normalize_db_url(cls, v: str) -> str:
+        """Coerce the DB URL to the asyncpg driver.
+
+        Render's `fromDatabase` connection string is a plain `postgresql://…`
+        URL, which SQLAlchemy's async engine resolves to the sync psycopg2
+        driver (not installed) -> ImportError at startup. Force `+asyncpg` so
+        the async engine works regardless of how the URL is supplied.
+        """
+        if not v:
+            return v
+        for prefix in ("postgresql://", "postgres://"):
+            if v.startswith(prefix):
+                return "postgresql+asyncpg://" + v[len(prefix):]
+        return v
 
     # Security
     SECRET_KEY: str = "change-this-to-a-secure-random-string-in-production"
