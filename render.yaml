@@ -1,4 +1,5 @@
 services:
+  # Backend API (Python/FastAPI)
   - type: web
     name: pharmacy-backend
     runtime: python
@@ -10,12 +11,12 @@ services:
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: pharmacy-db
+          name: pharmacy-db          # Must match the PostgreSQL database name created in Render Dashboard
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
-        # Update this in Render Dashboard after Vercel deployment with your Vercel URL
+        # Update this in Render Dashboard after Vercel deployment
         # Format: https://your-app.vercel.app,https://your-preview.vercel.app
         value: "http://localhost:3000,http://127.0.0.1:3000"
       - key: OCR_ENGINE
@@ -29,13 +30,7 @@ services:
       - key: PYTHON_VERSION
         value: "3.11"
 
-  - type: postgresql
-    name: pharmacy-db
-    region: oregon
-    plan: free
-    databaseName: pharmacy_shortage
-    ipAllowList: []
-
+  # Frontend (Next.js) - Optional: deploy to Vercel instead
   - type: web
     name: pharmacy-frontend
     runtime: node
@@ -47,3 +42,11 @@ services:
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://pharmacy-backend.onrender.com/api/v1
+
+# PostgreSQL Database: Create MANUALLY in Render Dashboard
+# 1. Go to Render Dashboard → New → PostgreSQL
+# 2. Name: pharmacy-db
+# 3. Database: pharmacy_shortage
+# 4. Region: oregon
+# 5. Plan: Free
+# 6. After creation, the backend will auto-connect via DATABASE_URL
