@@ -29,10 +29,10 @@ async def lifespan(app: FastAPI):
     await init_db()
     logger.info("Database initialized")
 
-    # Pre-warm OCR engine
+    # Pre-warm OCR engine (loads the model once, then reused per request)
     try:
-        from app.services.ocr_service import get_ocr_engine
-        get_ocr_engine()
+        from app.services.ocr_service import warm_up_ocr
+        warm_up_ocr()
         logger.info("OCR engine initialized")
     except Exception as e:
         logger.warning(f"OCR engine pre-warm failed (will initialize on first use): {e}")

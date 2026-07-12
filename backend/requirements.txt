@@ -17,10 +17,17 @@ alembic==1.13.1
 greenlet==3.0.3
 
 # OCR & Image Processing
-# NOTE: PaddleOCR (paddleocr/paddlepaddle) is intentionally omitted. It's a ~400MB
-# dependency with no wheels for newer Python, and the deployed app uses the Tesseract
-# engine (OCR_ENGINE=tesseract). Install it manually (`pip install paddleocr paddlepaddle`)
-# only for higher-accuracy OCR in a local/self-hosted setup.
+# NOTE: PaddleOCR (paddleocr + paddlepaddle) is the DEFAULT engine
+# (OCR_ENGINE=paddleocr). It is intentionally NOT pinned/uncommented here so the
+# Render build (which falls back to Tesseract when PaddleOCR is absent) keeps
+# working. The versions below are the ones verified working on this project:
+#   pip install paddlepaddle==3.3.1 paddleocr==3.7.0
+# MKLDNN is disabled at runtime (see paddleocr_provider.py) to avoid a
+# paddle 3.x oneDNN/PIR CPU crash; the lighter "mobile" OCR models are used so
+# per-image processing stays well under the 10s target.
+# paddlepaddle==3.3.1
+# paddleocr==3.7.0
+# google-cloud-vision==3.5.0   # optional google_vision fallback (commented)
 pytesseract==0.3.10
 Pillow==10.3.0
 opencv-python-headless==4.10.0.84

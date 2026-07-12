@@ -51,10 +51,19 @@ class Settings(BaseSettings):
     ALLOWED_EXTENSIONS: str = ".png,.jpg,.jpeg,.bmp,.tiff,.xlsx,.xls,.csv,.pdf"
 
     # OCR
-    OCR_ENGINE: str = "tesseract"  # paddleocr | tesseract
+    # Switchable engine: "paddleocr" | "google_vision" | "tesseract".
+    # If the chosen engine is unavailable, the pipeline falls back through
+    # paddleocr -> google_vision -> tesseract automatically.
+    OCR_ENGINE: str = "paddleocr"
     OCR_LANGUAGE: str = "en,ar"
     OCR_CONFIDENCE_THRESHOLD: float = 0.6
+    # Minimum RapidFuzz similarity (0-100) to accept an OCR name as a known
+    # medicine (requirement #10: >= 90).
+    OCR_MATCH_THRESHOLD: float = 90.0
     TESSERACT_PATH: Optional[str] = None
+    # Path to a Google Cloud service-account JSON file (for google_vision).
+    # Also honored via the standard GOOGLE_APPLICATION_CREDENTIALS env var.
+    GOOGLE_VISION_CREDENTIALS: Optional[str] = None
 
     # Shortage Defaults
     DEFAULT_MIN_STOCK: int = 10
